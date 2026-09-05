@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Admin · Calum Scott Clone</title>
+  <link rel="icon" type="image/png" href="images/cs-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/admin.css">
+</head>
+<body>
+
+  <div class="admin">
+    <aside class="admin__side">
+      <div class="admin__brand">
+        <img src="images/cs-logo.png" alt="">
+        <span>Admin</span>
+      </div>
+
+      <nav class="admin__tabs" id="tabs">
+        <button class="tab active" data-tab="merch">Merch Tiles</button>
+        <button class="tab" data-tab="album">Album</button>
+        <button class="tab" data-tab="gallery">Scotties Gallery</button>
+        <button class="tab" data-tab="hero">Hero</button>
+        <button class="tab" data-tab="footer">Footer</button>
+        <button class="tab" data-tab="settings">Settings</button>
+      </nav>
+
+      <div class="admin__side-foot">
+        <a href="index.html" target="_blank">Open site ↗</a>
+      </div>
+    </aside>
+
+    <main class="admin__main">
+      <header class="admin__bar">
+        <h1 class="admin__title">Site Admin</h1>
+        <div class="admin__bar-actions">
+          <button class="btn btn--ghost" id="btn-import" type="button">Import</button>
+          <button class="btn btn--ghost" id="btn-export" type="button">Export JSON</button>
+          <button class="btn btn--ghost" id="btn-reset" type="button">Reset</button>
+          <button class="btn btn--primary" id="btn-save" type="button">Save</button>
+        </div>
+      </header>
+
+      <input type="file" id="import-file" accept="application/json,.json" hidden>
+
+      <section class="page" data-page="merch">
+        <h2>Merch Tiles</h2>
+        <p class="page__hint">The grid of product tiles under the hero. Each tile links to a collection.</p>
+
+        <div class="card">
+          <div class="card__head">
+            <h3>Tiles</h3>
+            <button class="btn btn--mini" id="merch-add" type="button">+ Add tile</button>
+          </div>
+          <div id="merch-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card__head"><h3>Preview</h3></div>
+          <div class="preview-grid" id="merch-preview"></div>
+        </div>
+      </section>
+
+      <section class="page" data-page="album">
+        <h2>Album Section</h2>
+        <p class="page__hint">The "THE NEW ALBUM" button and cover image below the merch grid.</p>
+
+        <div class="card">
+          <div class="field">
+            <label for="album-text">Button text</label>
+            <input id="album-text" type="text">
+          </div>
+          <div class="field">
+            <label for="album-link">Link URL</label>
+            <input id="album-link" type="text">
+          </div>
+          <div class="field">
+            <label for="album-image">Cover image (URL or local path)</label>
+            <input id="album-image" type="text">
+          </div>
+          <div class="album-pre">
+            <img id="album-preview-cover" alt="Album cover preview">
+            <span class="pill" id="album-pill"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" data-page="gallery">
+        <h2>Scotties Gallery</h2>
+        <p class="page__hint">Marquee of fan photos with the frosted-glass overlay. Photos not included are left out of the marquee.</p>
+
+        <div class="card">
+          <div class="fields-2">
+            <div class="field">
+              <label for="gal-eyebrow">Eyebrow</label>
+              <input id="gal-eyebrow" type="text">
+            </div>
+            <div class="field">
+              <label for="gal-title">Title</label>
+              <input id="gal-title" type="text">
+            </div>
+          </div>
+          <div class="fields-2">
+            <div class="field">
+              <label for="gal-sub">Subtitle</label>
+              <input id="gal-sub" type="text">
+            </div>
+            <div class="field">
+              <label for="gal-cta">Button text</label>
+              <input id="gal-cta" type="text">
+            </div>
+          </div>
+          <div class="field">
+            <label for="gal-ctalink">Button link</label>
+            <input id="gal-ctalink" type="text">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <h3>Photos (<span id="gal-count"></span> included)</h3>
+            <div class="photo-add">
+              <input id="gal-photo-url" type="text" placeholder="Add photo by URL">
+              <button class="btn btn--mini" id="gal-photo-add" type="button">+ Add</button>
+            </div>
+          </div>
+          <div class="photo-grid" id="gal-photos"></div>
+        </div>
+      </section>
+
+      <section class="page" data-page="hero">
+        <h2>Hero Section</h2>
+        <p class="page__hint">Fullscreen cover image that links to a live page.</p>
+
+        <div class="card">
+          <div class="field">
+            <label for="hero-poster">Hero image</label>
+            <input id="hero-poster" type="text">
+          </div>
+          <div class="field">
+            <label for="hero-link">Click-through link</label>
+            <input id="hero-link" type="text">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__head"><h3>Decorative strips</h3></div>
+          <label class="check"><input id="strip-wine" type="checkbox"> Wine strip (between hero and merch)</label>
+          <label class="check"><input id="strip-peach" type="checkbox"> Peach gradient strips</label>
+        </div>
+      </section>
+
+      <section class="page" data-page="footer">
+        <h2>Footer</h2>
+        <p class="page__hint">Social links and copyright line.</p>
+
+        <div class="card">
+          <div class="fields-2">
+            <div class="field">
+              <label for="foot-copy">Copyright text</label>
+              <input id="foot-copy" type="text">
+            </div>
+            <div class="field">
+              <label for="foot-privacy">Policy label</label>
+              <input id="foot-privacy" type="text">
+            </div>
+          </div>
+          <div class="field">
+            <label for="foot-privacylink">Policy link</label>
+            <input id="foot-privacylink" type="text">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <h3>Social links</h3>
+            <button class="btn btn--mini" id="social-add" type="button">+ Add link</button>
+          </div>
+          <div id="social-list"></div>
+        </div>
+      </section>
+
+      <section class="page" data-page="settings">
+        <h2>Settings</h2>
+
+        <div class="card">
+          <div class="card__head"><h3>How saving works</h3></div>
+          <p class="page__hint">
+            <strong>Save</strong> writes your changes to this browser (applied immediately on the site).
+            <br><strong>Export JSON</strong> downloads a <code>site.json</code> — place it at
+            <code>data/site.json</code> to publish those changes for every visitor.
+            <br><strong>Import</strong> loads a previously exported file back into the editor.
+            <br><strong>Reset</strong> restores the original Calum Scott clone content.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card__head"><h3>Current storage</h3></div>
+          <p id="storage-status" class="page__hint"></p>
+          <button class="btn btn--ghost" id="btn-clear-local" type="button">Clear browser storage</button>
+        </div>
+      </section>
+
+      <div class="toast" id="toast" role="status"></div>
+    </main>
+  </div>
+
+  <script src="assets/admin.js" defer></script>
+</body>
+</html>
