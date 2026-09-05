@@ -48,7 +48,102 @@ var DEFAULT = {
 };
 
 var STORAGE_KEY = "calum_admin_v1";
+var PUBLISH_KEY = "calum_pub_settings";
 var PUBLISH_PATH = "data/site.json";
+
+var pub = { token: "", owner: "", repo: "" };
+
+function loadPub() {
+  try {
+    var raw = localStorage.getItem(PUBLISH_KEY);
+    if (raw) pub = Object.assign(pub, JSON.parse(raw));
+  } catch (e) {}
+  $("#pub-token").value = pub.token;
+  $("#pub-owner").value = pub.owner;
+  $("#pub-repo").value = pub.repo;
+}
+
+function savePub() {
+  pub.token = $("#pub-token").value.trim();
+  pub.owner = $("#pub-owner").value.trim();
+  pub.repo = $("#pub-repo").value.trim();
+  try { localStorage.setItem(PUBLISH_KEY, JSON.stringify(pub)); } catch (e) {}
+  refreshPublishStatus();
+  toast("Publish details saved", "ok");
+}
+
+function refreshPublishStatus() {
+  var el = $("#publish-status");
+  if (!el) return;
+  el.textContent =
+    pub.token && pub.owner && pub.repo
+      ? "Ready to publish to " + pub.owner + "/" + pub.repo
+      : "Add your GitHub details to enable publishing";
+}
+
+function publishSiteJson() {
+  if (!pub.token || !pub.owner || !pub.repo) {
+    toast("Add your GitHub token, owner and repo first", "err");
+    return;
+  }
+  var payload = JSON.stringify(collectForSave(), null, 2);
+  function b64(s) {
+    return btoa(unescape(encodeURIComponent(s)));
+  }
+
+  var url = "https://api.github.com/repos/" + pub.owner + "/" + pub.repo + "/contents/" + PUBLISH_PATH;
+  var body = JSON.stringify({
+    message: "Publish site config from admin",
+    content: b64(payload),
+    branch: "main"
+  });
+
+  function put(withSha) {
+    if (withSha) {
+      body = body.replace(/^\{"message":/, '{"message":');
+      var parsed = JSON.parse(body);
+      parsed.sha = withSha;
+      body = JSON.stringify(parsed);
+    }
+    return fetch(url, {
+      method: "PUT",
+      headers: {
+        "Authorization": "token " + pub.token,
+        "Accept": "application/vnd.github+json",
+        "Content-Type": "application/json"
+      },
+      body: body
+    });
+  }
+
+  put(false).then(function (r) {
+    if (r.status === 422) {
+      return fetch(url, {
+        method: "GET",
+        headers: { "Authorization": "token " + pub.token, "Accept": "application/vnd.github+json" }
+      }).then(function (g) { return g.json(); }).then(function (meta) {
+        return put(meta.sha);
+      });
+    }
+    if (!r.ok) return r.json().then(function (e) { throw new Error(e.message || r.status); });
+    return r.json();
+  }).then(function () {
+    toast("Published — visible on the site in ~1 min", "ok");
+    downloadSiteJson(payload);
+  }).catch(function (e) {
+    toast("Publish failed: " + e.message, "err");
+  });
+}
+
+function downloadSiteJson(payload) {
+  if (!payload) payload = JSON.stringify(collectForSave(), null, 2);
+  var blob = new Blob([payload], { type: "application/json" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "site.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 
 var state = null;
 
@@ -413,8 +508,8 @@ function refreshStorageStatus() {
   } catch (e) {}
   var hasLocal = !!loadFromStorage();
   el.innerHTML =
-    "<strong>Browser draft (localStorage):</strong> " + (hasLocal ? "yes — applied on the site" : "no") +
-    "<br><strong>Published file (" + PUBLISH_PATH + "):</strong> " + (hasPub ? "present — takes priority over this browser" : "not present");
+    "<strong>Browser draft (localStorage):</strong> " + (hasLocal ? "yes — previews on this browser" : "no") +
+    "<br><strong>Published file (" + PUBLISH_PATH + "):</strong> " + (hasPub ? "present — applies to all other visitors" : "not present");
 }
 
 function rerenderAll() {
@@ -460,6 +555,11 @@ function init() {
   });
   $("#btn-reset").addEventListener("click", reset);
   $("#btn-clear-local").addEventListener("click", clearLocal);
+  $("#btn-save-pub").addEventListener("click", savePub);
+  $("#btn-publish").addEventListener("click", publishSiteJson);
+
+  loadPub();
+  refreshPublishStatus();
 
   document.addEventListener("keydown", function (e) {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
