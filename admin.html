@@ -198,6 +198,34 @@
         </div>
 
         <div class="card">
+          <div class="card__head"><h3>Publish to GitHub Pages</h3></div>
+          <p class="page__hint">
+            Uploads <code>data/site.json</code> to your repo so every visitor sees your
+            current edits. Deploy takes about a minute. Your details are stored only in
+            this browser (<code>localStorage</code>), never in the published files.
+          </p>
+          <div class="field">
+            <label for="pub-token">GitHub personal access token (classic, repo scope)</label>
+            <input id="pub-token" type="password" autocomplete="off" placeholder="ghp_…">
+          </div>
+          <div class="fields-2">
+            <div class="field">
+              <label for="pub-owner">Owner</label>
+              <input id="pub-owner" type="text" placeholder="e.g. c9919145">
+            </div>
+            <div class="field">
+              <label for="pub-repo">Repo</label>
+              <input id="pub-repo" type="text" placeholder="e.g. calum-scott-clone">
+            </div>
+          </div>
+          <div class="admin__bar-actions">
+            <button class="btn btn--ghost" id="btn-save-pub" type="button">Save details</button>
+            <button class="btn btn--primary" id="btn-publish" type="button">Publish to GitHub</button>
+          </div>
+          <p class="page__hint" id="publish-status" style="margin-top:10px;margin-bottom:0"></p>
+        </div>
+
+        <div class="card">
           <div class="card__head"><h3>Current storage</h3></div>
           <p id="storage-status" class="page__hint"></p>
           <button class="btn btn--ghost" id="btn-clear-local" type="button">Clear browser storage</button>
