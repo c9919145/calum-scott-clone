@@ -349,15 +349,8 @@
 
   function getAdminData() {
     var data = null;
-    try {
-      var ls = localStorage.getItem('calum_admin_v1');
-      if (ls) {
-        var parsed = JSON.parse(ls);
-        if (parsed && parsed.version) data = parsed;
-      }
-    } catch (e) {}
 
-    // Published file (data/site.json) takes priority over the browser draft.
+    // Published file (data/site.json) = what admins ship to everyone.
     if (location.protocol === 'http:' || location.protocol === 'https:') {
       try {
         var xhr = new XMLHttpRequest();
@@ -369,6 +362,16 @@
         }
       } catch (e) {}
     }
+
+    // This browser's unsaved drafts preview locally and win over the published build.
+    try {
+      var ls = localStorage.getItem('calum_admin_v1');
+      if (ls) {
+        var parsed = JSON.parse(ls);
+        if (parsed && parsed.version) data = parsed;
+      }
+    } catch (e) {}
+
     return data;
   }
 
