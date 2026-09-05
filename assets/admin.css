@@ -78,7 +78,11 @@ body{
 .field input[type=text],.fields-2 input[type=text],.photo-add input,.list-row input{
   width:100%;font:inherit;padding:9px 12px;border:1px solid #d8c8bb;border-radius:8px;background:#fbf7f2;color:#321d1c
 }
-.field input[type=text]:focus,.fields-2 input[type=text]:focus,.photo-add input:focus,.list-row input:focus{
+.field input[type=password]{
+  width:100%;font:inherit;padding:9px 12px;border:1px solid #d8c8bb;border-radius:8px;background:#fbf7f2;color:#321d1c
+}
+.field input[type=text]:focus,.fields-2 input[type=text]:focus,.photo-add input:focus,.list-row input:focus,
+.field input[type=password]:focus{
   outline:none;border-color:#754446;box-shadow:0 0 0 3px rgba(117,68,70,.12)
 }
 .fields-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
