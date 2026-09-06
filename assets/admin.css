@@ -86,6 +86,8 @@ body{
   outline:none;border-color:#754446;box-shadow:0 0 0 3px rgba(117,68,70,.12)
 }
 .fields-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chk{display:flex;align-items:center;gap:8px;margin:2px 0 12px;font-size:13px;color:#4a3c3e}
+.chk input{width:auto;height:auto;margin:0;accent-color:#754446}
 .thumb{width:120px;height:120px;object-fit:cover;border-radius:8px;margin-top:8px;border:1px solid #eadcd2;display:block}
 
 /* List rows (merch / socials) */
