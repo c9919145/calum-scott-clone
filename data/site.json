@@ -151,5 +151,11 @@
       }
     ]
   },
-  "giftCards": []
+  "giftCards": [
+    {
+      "code": "WELCOME10",
+      "balance": 10,
+      "label": "Demo card"
+    }
+  ]
 }
