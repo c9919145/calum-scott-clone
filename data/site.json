@@ -157,5 +157,17 @@
       "balance": 10,
       "label": "Demo card"
     }
-  ]
+  ],
+  "giftCardSection": {
+    "enabled": true,
+    "eyebrow": "Official merch store",
+    "title": "Gift Cards",
+    "sub": "A Calum Scott gift card — redeemable on this demo store's gift-card checkout.",
+    "denominations": [
+      25,
+      50,
+      100
+    ],
+    "custom": true
+  }
 }
