@@ -437,6 +437,12 @@
           label.textContent = tile.title || '';
           a.appendChild(media);
           a.appendChild(label);
+          if (tile.price > 0) {
+            var price = document.createElement('span');
+            price.className = 'merch__price';
+            price.textContent = shopMoney(tile.price);
+            a.appendChild(price);
+          }
           wrap.appendChild(a);
           grid.appendChild(wrap);
         });
@@ -796,7 +802,7 @@
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'merch__add';
-      btn.textContent = 'Add · ' + shopMoney(price);
+      btn.textContent = 'Add';
       btn.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
