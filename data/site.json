@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "hero": {
+    "poster": "images/hero-poster.jpg",
+    "link": "https://calumscott.com/pages/live"
+  },
+  "strips": {
+    "wine": true,
+    "peach": true
+  },
+  "merch": {
+    "tiles": [
+      {
+        "title": "Tees",
+        "image": "images/tees.webp",
+        "link": "https://calumscott.com/collections/tee",
+        "price": 26
+      },
+      {
+        "title": "Hoods & Sweats",
+        "image": "images/hoods.webp",
+        "link": "https://calumscott.com/collections/hoods-sweats",
+        "price": 55
+      },
+      {
+        "title": "Hats",
+        "image": "images/hats.webp",
+        "link": "https://calumscott.com/collections/headwear",
+        "price": 24
+      },
+      {
+        "title": "Shop All",
+        "image": "images/shopall.webp",
+        "link": "https://calumscott.com/collections/merch",
+        "price": 0
+      }
+    ]
+  },
+  "album": {
+    "text": "THE NEW ALBUM",
+    "link": "https://shop.calumscott.com/",
+    "image": "images/album-cover.webp"
+  },
+  "scotties": {
+    "eyebrow": "Official fan gallery",
+    "title": "Scotties",
+    "sub": "Real fans · Real moments",
+    "cta": "View gallery",
+    "ctaLink": "https://calumscott.com/pages/scotties-gallery",
+    "photos": [
+      "images/scotties/g1.jpg",
+      "images/scotties/g2.jpg",
+      "images/scotties/g3.jpg",
+      "images/scotties/g4.jpg",
+      "images/scotties/g5.jpg",
+      "images/scotties/g6.jpg",
+      "images/scotties/g7.jpg",
+      "images/scotties/g8.jpg",
+      "images/scotties/g9.jpg",
+      "images/scotties/g10.jpg",
+      "images/scotties/g11.jpg",
+      "images/scotties/g12.jpg",
+      "images/scotties/g13.jpg",
+      "images/scotties/g14.jpg",
+      "images/scotties/g15.jpg",
+      "images/scotties/g16.jpg",
+      "images/scotties/g17.jpg",
+      "images/scotties/g18.jpg",
+      "images/scotties/g19.jpg",
+      "images/scotties/g20.jpg",
+      "images/scotties/g21.jpg",
+      "images/scotties/g22.jpg",
+      "images/scotties/g23.jpg",
+      "images/scotties/g24.jpg",
+      "images/scotties/g25.jpg",
+      "images/scotties/g26.jpg",
+      "images/scotties/g27.jpg",
+      "images/scotties/g28.jpg",
+      "images/scotties/g29.jpg",
+      "images/scotties/g30.jpg",
+      "images/scotties/g31.jpg",
+      "images/scotties/g32.jpg",
+      "images/scotties/g33.jpg",
+      "images/scotties/g34.jpg",
+      "images/scotties/g35.jpg",
+      "images/scotties/g36.jpg",
+      "images/scotties/g37.jpg",
+      "images/scotties/g38.jpg",
+      "images/scotties/g39.jpg",
+      "images/scotties/g40.jpg",
+      "images/scotties/g41.jpg",
+      "images/scotties/g42.jpg",
+      "images/scotties/g43.jpg",
+      "images/scotties/g44.jpg",
+      "images/scotties/g45.jpg",
+      "images/scotties/g46.jpg",
+      "images/scotties/g47.jpg",
+      "images/scotties/g48.jpg",
+      "images/scotties/g49.jpg",
+      "images/scotties/g50.jpg",
+      "images/scotties/g51.jpg",
+      "images/scotties/g52.jpg",
+      "images/scotties/g53.jpg",
+      "images/scotties/g54.jpg",
+      "images/scotties/g55.jpg",
+      "images/scotties/g56.jpg",
+      "images/scotties/g57.jpg",
+      "images/scotties/g58.jpg",
+      "images/scotties/g59.jpg",
+      "images/scotties/g60.jpg",
+      "images/scotties/g61.jpg",
+      "images/scotties/g62.jpg",
+      "images/scotties/g63.jpg",
+      "images/scotties/g64.jpg",
+      "images/scotties/g65.jpg",
+      "images/scotties/g66.jpg",
+      "images/scotties/g67.jpg",
+      "images/scotties/g68.jpg",
+      "images/scotties/g69.jpg",
+      "images/scotties/g70.jpg",
+      "images/scotties/g71.jpg",
+      "images/scotties/g72.jpg",
+      "images/scotties/g73.jpg",
+      "images/scotties/g74.jpg"
+    ]
+  },
+  "footer": {
+    "copyright": "© 2026 Calum Scott",
+    "privacy": "Privacy & Cookie Policy",
+    "privacyLink": "https://calumscott.com/pages/privacy-policy",
+    "socials": [
+      {
+        "label": "X (Twitter)",
+        "href": "https://x.com/"
+      },
+      {
+        "label": "Instagram",
+        "href": "https://www.instagram.com/"
+      },
+      {
+        "label": "YouTube",
+        "href": "https://www.youtube.com/"
+      },
+      {
+        "label": "TikTok",
+        "href": "https://www.tiktok.com/"
+      },
+      {
+        "label": "Facebook",
+        "href": "https://www.facebook.com/"
+      }
+    ]
+  },
+  "giftCards": []
+}
