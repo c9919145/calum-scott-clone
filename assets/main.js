@@ -164,6 +164,8 @@
   function closeAllOverlays() {
     closeOverlay(searchOverlay);
     closeOverlay(langOverlay);
+    closeOverlay(checkoutOverlay);
+    if (closeCart) closeCart();
     if (closeMenu) closeMenu();
   }
 
@@ -416,8 +418,12 @@
       if (grid) {
         grid.innerHTML = '';
         d.merch.tiles.forEach(function (tile) {
+          var wrap = document.createElement('div');
+          wrap.className = 'merch__tile';
+          wrap.dataset.price = tile.price > 0 ? tile.price : 0;
+          wrap.dataset.title = tile.title || '';
           var a = document.createElement('a');
-          a.className = 'merch__tile';
+          a.className = 'merch__tile-link';
           a.href = tile.link || '#';
           var media = document.createElement('div');
           media.className = 'merch__media';
@@ -431,7 +437,8 @@
           label.textContent = tile.title || '';
           a.appendChild(media);
           a.appendChild(label);
-          grid.appendChild(a);
+          wrap.appendChild(a);
+          grid.appendChild(wrap);
         });
       }
     }
@@ -521,5 +528,297 @@
     return false;
   }
 
-  applyOverrides(getAdminData());
+  /* ---------------- Shop: cart + gift-card checkout ---------------- */
+  var CART_KEY = 'calum_cart_v1';
+  var GC_USED_KEY = 'calum_gc_used';
+
+  function shopEsc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function shopMoney(n) {
+    n = Number(n) || 0;
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function loadCart() {
+    try {
+      var c = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+      return Array.isArray(c) ? c : [];
+    } catch (e) { return []; }
+  }
+
+  var cart = loadCart();
+
+  function saveCart() {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  }
+
+  function cartTotals() {
+    var raw = 0, qty = 0;
+    cart.forEach(function (it) {
+      raw += (Number(it.price) || 0) * it.qty;
+      qty += it.qty;
+    });
+    return { raw: raw, qty: qty };
+  }
+
+  function renderCartBadge() {
+    var badge = document.getElementById('cart-count');
+    if (!badge) return;
+    var qty = cartTotals().qty;
+    badge.hidden = qty === 0;
+    badge.textContent = qty;
+  }
+
+  function bindCartLineButtons() {
+    document.querySelectorAll('#cart-items button[data-item]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var i = parseInt(btn.dataset.item, 10);
+        if (isNaN(i) || !cart[i]) return;
+        var op = btn.dataset.op;
+        if (op === 'inc') cart[i].qty++;
+        else if (op === 'dec') { if (cart[i].qty > 1) cart[i].qty--; else cart.splice(i, 1); }
+        else if (op === 'del') cart.splice(i, 1);
+        saveCart();
+        renderCartItems();
+        renderCartBadge();
+      });
+    });
+  }
+
+  function renderCartItems() {
+    var items = document.getElementById('cart-items');
+    var sub = document.getElementById('cart-subtotal');
+    var checkoutBtn = document.getElementById('cart-checkout');
+    var t = cartTotals();
+    if (checkoutBtn) checkoutBtn.disabled = cart.length === 0;
+    if (sub) sub.textContent = shopMoney(t.raw);
+    if (!items) return;
+    items.innerHTML = '';
+    if (!cart.length) {
+      items.innerHTML = '<p class="cart-empty">Your cart is empty.</p>';
+      return;
+    }
+    cart.forEach(function (it, i) {
+      var row = document.createElement('div');
+      row.className = 'cart-line';
+      row.innerHTML =
+        '<img class="cart-line__img" src="' + shopEsc(it.image) + '" alt="">' +
+        '<div><div class="cart-line__title">' + shopEsc(it.title) + '</div><div class="cart-line__price">' + shopMoney(it.price) + ' each</div></div>' +
+        '<div class="cart-line__right"><div class="cart-qty">' +
+        '<button type="button" data-op="dec" data-item="' + i + '">−</button><span>' + it.qty + '</span><button type="button" data-op="inc" data-item="' + i + '">+</button>' +
+        '</div><button type="button" class="cart-line__remove" data-op="del" data-item="' + i + '">Remove</button></div>';
+      items.appendChild(row);
+    });
+    bindCartLineButtons();
+  }
+
+  function addToCartItem(title, price, image) {
+    var existing = null;
+    for (var i = 0; i < cart.length; i++) {
+      if (cart[i].title === title && Number(cart[i].price) === Number(price)) { existing = cart[i]; break; }
+    }
+    if (existing) existing.qty++;
+    else cart.push({ title: title, price: Number(price), image: image, qty: 1 });
+    saveCart();
+    renderCartItems();
+    renderCartBadge();
+    openCart();
+  }
+
+  var cartDrawer = document.getElementById('cart-drawer');
+  var shopOverlay = document.getElementById('shop-overlay');
+  var checkoutOverlay = document.getElementById('checkout-overlay');
+  var checkoutView = document.getElementById('checkout-view');
+
+  function openCart() {
+    if (!cartDrawer) return;
+    cartDrawer.classList.add('open');
+    if (shopOverlay) shopOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    renderCartItems();
+  }
+
+  function closeCart() {
+    if (cartDrawer) cartDrawer.classList.remove('open');
+    if (shopOverlay) shopOverlay.classList.remove('open');
+    if (!checkoutOverlay || !checkoutOverlay.classList.contains('open')) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  /* ---- gift card + checkout state ---- */
+  var siteCards = [];
+  var gcUsed = [];
+  var applied = { code: '', balance: 0, amount: 0, from: '' };
+
+  function saveGcUsed() {
+    try { localStorage.setItem(GC_USED_KEY, JSON.stringify(gcUsed)); } catch (e) {}
+  }
+
+  function openCheckout() {
+    if (!checkoutOverlay) return;
+    closeCart();
+    applied = { code: '', balance: 0, amount: 0, from: '' };
+    checkoutOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    renderCheckout();
+  }
+
+  function closeCheckout() {
+    if (!checkoutOverlay) return;
+    checkoutOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function renderCheckout() {
+    if (!checkoutView) return;
+    var t = cartTotals();
+    if (!cart.length) {
+      checkoutView.innerHTML = '<div class="co-success"><p>Your cart is empty.</p></div>';
+      return;
+    }
+    var rows = '';
+    cart.forEach(function (it) {
+      rows += '<div class="checkout__row"><span class="co-qty">' + it.qty + ' × ' + shopEsc(it.title) + '</span><span>' + shopMoney(it.price * it.qty) + '</span></div>';
+    });
+    var remaining = Math.max(0, t.raw - applied.amount);
+    var covered = applied.amount > 0
+      ? '<div class="co-covered"><span>Gift card ' + shopEsc(applied.code) + '</span><span>−' + shopMoney(applied.amount) + '</span></div>'
+      : '<div class="co-covered" style="display:none"></div>';
+    var payDisabled = !(applied.amount > 0) || remaining > 0;
+    checkoutView.innerHTML =
+      '<div class="co-items">' + rows + '</div>' +
+      '<div class="co-totals">' +
+      '<div><span>Subtotal</span><span>' + shopMoney(t.raw) + '</span></div>' +
+      (applied.amount > 0 ? '<div><span>Gift card</span><span>−' + shopMoney(applied.amount) + '</span></div>' : '') +
+      '<div class="co-total"><span>Total due</span><span>' + shopMoney(remaining) + '</span></div>' +
+      '</div>' +
+      '<div class="co-gc"><input id="gc-input" placeholder="Gift card code" maxlength="24" autocomplete="off"><button class="btn-apply" id="gc-apply" type="button">Apply</button></div>' +
+      '<div class="co-gc-status" id="gc-status"></div>' +
+      covered +
+      '<button class="btn--checkout" id="co-pay" type="button"' + (payDisabled ? ' disabled' : '') + '>' +
+      (remaining > 0 ? 'Pay remaining ' + shopMoney(remaining) : 'Pay with gift card') + '</button>' +
+      '<p class="co-gift-note">Demo checkout — gift card codes are issued in the admin panel. No real payment is processed.</p>';
+
+    var input = document.getElementById('gc-input');
+    if (input) {
+      input.focus();
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') applyGiftCode();
+      });
+    }
+    document.getElementById('gc-apply').addEventListener('click', applyGiftCode);
+    document.getElementById('co-pay').addEventListener('click', payWithGiftCard);
+  }
+
+  function applyGiftCode() {
+    var input = document.getElementById('gc-input');
+    var status = document.getElementById('gc-status');
+    var code = (input.value || '').trim().toUpperCase();
+    if (!code) {
+      status.className = 'co-gc-status err';
+      status.textContent = 'Enter a gift card code.';
+      return;
+    }
+    var card = null;
+    for (var i = 0; i < siteCards.length; i++) {
+      if (String(siteCards[i].code).toUpperCase() === code) { card = siteCards[i]; break; }
+    }
+    if (!card) {
+      status.className = 'co-gc-status err';
+      status.textContent = 'Unknown code "' + shopEsc(code) + '". Codes are issued by the store admin.';
+      return;
+    }
+    if ((Number(card.balance) || 0) <= 0) {
+      status.className = 'co-gc-status err';
+      status.textContent = 'That gift card has no balance left.';
+      return;
+    }
+    if (gcUsed.indexOf(code) !== -1) {
+      status.className = 'co-gc-status err';
+      status.textContent = 'That gift card was already used in this browser.';
+      return;
+    }
+    var t = cartTotals();
+    applied = {
+      code: code,
+      balance: Number(card.balance),
+      amount: Math.min(Number(card.balance), t.raw),
+      from: card.label || ''
+    };
+    renderCheckout();
+  }
+
+  function payWithGiftCard() {
+    var t = cartTotals();
+    var remaining = Math.max(0, t.raw - applied.amount);
+    if (!applied.code || remaining > 0) return;
+    gcUsed.push(applied.code);
+    saveGcUsed();
+    var orderId = 'GC-' + Date.now().toString(36).toUpperCase();
+    checkoutView.innerHTML =
+      '<div class="co-success">' +
+      '<div class="co-success__tick">✓</div>' +
+      '<h3>Order placed</h3>' +
+      '<p>Paid ' + shopMoney(t.raw) + ' with gift card ' + shopEsc(applied.code) + '.</p>' +
+      (applied.from ? '<p>' + shopEsc(applied.from) + '</p>' : '') +
+      '<span class="co-order-id">Order ' + shopEsc(orderId) + '</span>' +
+      '<p>Demo checkout — nothing was actually charged, and your card balance was not reduced server-side.</p>' +
+      '</div>';
+    cart = [];
+    saveCart();
+    renderCartBadge();
+  }
+
+  function initShop() {
+    var toggle = document.getElementById('cart-toggle');
+    var closeBtn = document.getElementById('cart-close');
+    var checkoutBtn = document.getElementById('cart-checkout');
+    var coClose = document.getElementById('checkout-close');
+
+    if (toggle) toggle.addEventListener('click', openCart);
+    if (closeBtn) closeBtn.addEventListener('click', closeCart);
+    if (shopOverlay) shopOverlay.addEventListener('click', closeCart);
+    if (checkoutBtn) checkoutBtn.addEventListener('click', openCheckout);
+    if (coClose) coClose.addEventListener('click', closeCheckout);
+    if (checkoutOverlay) checkoutOverlay.addEventListener('click', function (e) {
+      if (e.target === checkoutOverlay) closeCheckout();
+    });
+
+    // Add-button on every priced merch tile (built or static)
+    document.querySelectorAll('.merch__tile').forEach(function (tile) {
+      var price = Number(tile.dataset.price);
+      if (!(price > 0)) return;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'merch__add';
+      btn.textContent = 'Add · ' + shopMoney(price);
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var img = tile.querySelector('.merch__media img');
+        addToCartItem(tile.dataset.title || 'Item', price, img ? img.src : '');
+      });
+      tile.appendChild(btn);
+    });
+
+    renderCartBadge();
+    renderCartItems();
+  }
+
+  var siteData = getAdminData();
+  if (siteData && Array.isArray(siteData.giftCards)) {
+    siteCards = siteData.giftCards;
+  }
+  try {
+    var used = JSON.parse(localStorage.getItem(GC_USED_KEY) || '[]');
+    if (Array.isArray(used)) gcUsed = used;
+  } catch (e) {}
+
+  applyOverrides(siteData);
+  initShop();
 })();
