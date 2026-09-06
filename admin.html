@@ -183,6 +183,35 @@
           <div class="card__head"><h3>Issued cards (<span id="gc-count">0</span>)</h3></div>
           <div id="gift-list"></div>
         </div>
+
+        <div class="card">
+          <div class="card__head"><h3>Storefront gift card section</h3></div>
+          <label class="chk"><input type="checkbox" id="gcs-enabled"> Show the gift card section on the storefront</label>
+          <div class="fields-2">
+            <div class="field">
+              <label for="gcs-eyebrow">Eyebrow</label>
+              <input id="gcs-eyebrow" type="text" placeholder="e.g. Official merch store">
+            </div>
+            <div class="field">
+              <label for="gcs-title">Title</label>
+              <input id="gcs-title" type="text" placeholder="Gift Cards">
+            </div>
+          </div>
+          <div class="field">
+            <label for="gcs-sub">Sub text</label>
+            <input id="gcs-sub" type="text" placeholder="Short description for the section">
+          </div>
+          <div class="fields-2">
+            <div class="field">
+              <label for="gcs-denoms">Denominations ($, comma separated)</label>
+              <input id="gcs-denoms" type="text" placeholder="25, 50, 100">
+            </div>
+            <div class="field">
+              <label>Custom amount</label>
+              <label class="chk"><input type="checkbox" id="gcs-custom"> Allow shoppers to enter any amount</label>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section class="page" data-page="footer">
