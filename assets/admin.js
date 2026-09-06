@@ -47,7 +47,15 @@ var DEFAULT = {
   },
   giftCards: [
     { code: "WELCOME10", balance: 10, label: "Demo card" }
-  ]
+  ],
+  giftCardSection: {
+    enabled: true,
+    eyebrow: "Official merch store",
+    title: "Gift Cards",
+    sub: "A Calum Scott gift card — redeemable on this demo store's gift-card checkout.",
+    denominations: [25, 50, 100],
+    custom: true
+  }
 };
 
 var STORAGE_KEY = "calum_admin_v1";
@@ -204,6 +212,11 @@ function normalizeState(saved) {
   d.footer = Object.assign({}, d.footer, saved.footer || {});
   if (!Array.isArray(d.footer.socials)) d.footer.socials = [];
   d.giftCards = Array.isArray(saved.giftCards) ? saved.giftCards : [];
+  var gcs = Object.assign({}, d.giftCardSection, saved.giftCardSection || {});
+  if (!Array.isArray(gcs.denominations)) gcs.denominations = [];
+  gcs.denominations = gcs.denominations.map(Number).filter(function (n) { return n > 0; });
+  if (!gcs.denominations.length) gcs.denominations = d.giftCardSection.denominations;
+  d.giftCardSection = gcs;
   return d;
 }
 
@@ -547,6 +560,14 @@ function populateFields() {
   $("#strip-wine").checked = !!state.strips.wine;
   $("#strip-peach").checked = !!state.strips.peach;
 
+  var g = state.giftCardSection || {};
+  $("#gcs-enabled").checked = !!g.enabled;
+  $("#gcs-eyebrow").value = g.eyebrow || "";
+  $("#gcs-title").value = g.title || "";
+  $("#gcs-sub").value = g.sub || "";
+  $("#gcs-denoms").value = (g.denominations || []).join(", ");
+  $("#gcs-custom").checked = !!g.custom;
+
   var pre = $("#album-preview-cover");
   pre.style.display = "";
   pre.src = state.album.image;
@@ -682,6 +703,17 @@ function init() {
   $("#gc-add").addEventListener("click", issueGiftCard);
   $("#gc-balance").addEventListener("keydown", function (e) {
     if (e.key === "Enter") $("#gc-add").click();
+  });
+
+  $("#gcs-enabled").addEventListener("change", function () { state.giftCardSection.enabled = this.checked; });
+  $("#gcs-eyebrow").addEventListener("input", function () { state.giftCardSection.eyebrow = this.value; });
+  $("#gcs-title").addEventListener("input", function () { state.giftCardSection.title = this.value; });
+  $("#gcs-sub").addEventListener("input", function () { state.giftCardSection.sub = this.value; });
+  $("#gcs-custom").addEventListener("change", function () { state.giftCardSection.custom = this.checked; });
+  $("#gcs-denoms").addEventListener("input", function () {
+    var nums = this.value.split(",").map(function (s) { return parseFloat(s.trim()); })
+      .filter(function (n) { return !isNaN(n) && n > 0; });
+    state.giftCardSection.denominations = nums;
   });
 
   loadPub();
