@@ -187,6 +187,28 @@
 
     <section class="strip strip--peach strip--gradient" aria-hidden="true"></section>
 
+    <section class="giftcards reveal" id="giftcard-section">
+      <div class="giftcards__inner">
+        <p class="giftcards__eyebrow" id="gcs-eyebrow">Official merch store</p>
+        <h2 class="giftcards__title" id="gcs-title">Gift Cards</h2>
+        <p class="giftcards__sub" id="gcs-sub">A Calum Scott gift card — redeemable on this demo store's gift-card checkout.</p>
+
+        <div class="giftcards__denoms" id="giftcards-denoms"></div>
+        <div class="giftcards__custom" id="giftcards-custom-wrap" hidden>
+          <input id="giftcards-custom" type="number" min="1" step="0.01" placeholder="Custom amount">
+        </div>
+
+        <button class="btn--checkout giftcards__add" id="giftcards-add" type="button">Add gift card to cart</button>
+        <p class="giftcards__msg" id="giftcards-msg" role="status"></p>
+
+        <div class="giftcards__check">
+          <input id="giftcards-balance-input" placeholder="Have a card? Check its balance" autocomplete="off">
+          <button class="btn-apply" id="giftcards-balance-btn" type="button">Check balance</button>
+        </div>
+        <p class="giftcards__msg" id="giftcards-balance-result" aria-live="polite"></p>
+      </div>
+    </section>
+
     <section class="album reveal">
       <a class="album__button" href="https://shop.calumscott.com/">THE NEW ALBUM</a>
       <a class="album__cover" href="https://shop.calumscott.com/" aria-label="View the new album">
