@@ -126,6 +126,14 @@ body{
   letter-spacing:.08em;white-space:nowrap;flex-shrink:0
 }
 
+.lr-actions button[data-act="copy"]{
+  border:1px solid #754446;background:transparent;color:#754446;
+  border-radius:8px;padding:5px 11px;font-size:12px;font-weight:700;
+  letter-spacing:.05em;cursor:pointer;transition:background .2s,color .2s
+}
+.lr-actions button[data-act="copy"]:hover{background:#754446;color:#fff}
+.list-row .lr-actions{flex-direction:row;gap:8px}
+
 /* Album preview */
 .album-pre{display:flex;align-items:center;gap:18px;margin-top:8px}
 .album-pre img{width:90px;height:90px;border-radius:8px;object-fit:cover;border:1px solid #eadcd2}
