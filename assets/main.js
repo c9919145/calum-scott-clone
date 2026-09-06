@@ -692,10 +692,22 @@
       rows += '<div class="checkout__row"><span class="co-qty">' + it.qty + ' × ' + shopEsc(it.title) + '</span><span>' + shopMoney(it.price * it.qty) + '</span></div>';
     });
     var remaining = Math.max(0, t.raw - applied.amount);
-    var covered = applied.amount > 0
-      ? '<div class="co-covered"><span>Gift card ' + shopEsc(applied.code) + '</span><span>−' + shopMoney(applied.amount) + '</span></div>'
+    var coveredRows = applied.amount > 0
+      ? '<div class="co-covered"><span>Gift card ' + shopEsc(applied.code) + '</span><span>−' + shopMoney(applied.amount) + '</span>'
+      + (applied.balance > applied.amount ? '<em style="flex-basis:100%;font-style:normal;padding-top:4px;font-size:0.78rem;color:rgba(0,0,0,0.55)">Balance left on card: ' + shopMoney(applied.balance - applied.amount) + '</em>' : '')
+      + '</div>'
       : '<div class="co-covered" style="display:none"></div>';
     var payDisabled = !(applied.amount > 0) || remaining > 0;
+    var partialHint = remaining > 0 && applied.amount > 0
+      ? '<p class="co-gift-note" style="margin-top:8px">' + shopMoney(remaining) + ' still owed — this demo only settles orders fully covered by gift cards. Top up the card or remove items.</p>'
+      : '';
+    var demoHint = '';
+    for (var di = 0; di < siteCards.length; di++) {
+      if (siteCards[di].code === 'WELCOME10') {
+        demoHint = '<p class="co-gift-note">Demo tip: try code WELCOME10 (' + shopMoney(Number(siteCards[di].balance) || 0) + ')</p>';
+        break;
+      }
+    }
     checkoutView.innerHTML =
       '<div class="co-items">' + rows + '</div>' +
       '<div class="co-totals">' +
@@ -705,10 +717,12 @@
       '</div>' +
       '<div class="co-gc"><input id="gc-input" placeholder="Gift card code" maxlength="24" autocomplete="off"><button class="btn-apply" id="gc-apply" type="button">Apply</button></div>' +
       '<div class="co-gc-status" id="gc-status"></div>' +
-      covered +
+      coveredRows +
+      partialHint +
       '<button class="btn--checkout" id="co-pay" type="button"' + (payDisabled ? ' disabled' : '') + '>' +
       (remaining > 0 ? 'Pay remaining ' + shopMoney(remaining) : 'Pay with gift card') + '</button>' +
-      '<p class="co-gift-note">Demo checkout — gift card codes are issued in the admin panel. No real payment is processed.</p>';
+      '<p class="co-gift-note">Demo checkout — gift card codes are issued in the admin panel. No real payment is processed.</p>' +
+      demoHint;
 
     var input = document.getElementById('gc-input');
     if (input) {
