@@ -60,7 +60,12 @@ function guessSiteRepo() {
   var host = location.hostname;
   var owner = host.split(".")[0];
   var seg = location.pathname.split("/").filter(Boolean);
-  var repo = seg.length ? seg[0] : owner + ".github.io";
+  var repo;
+  if (seg.length && !/\.(html?|json|js|css)$/i.test(seg[0])) {
+    repo = seg[0]; // project site: /<repo>/admin.html
+  } else {
+    repo = owner + ".github.io"; // user site: served from the origin root
+  }
   return { owner: owner, repo: repo };
 }
 
