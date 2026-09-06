@@ -24,6 +24,7 @@
         <button class="tab" data-tab="album">Album</button>
         <button class="tab" data-tab="gallery">Scotties Gallery</button>
         <button class="tab" data-tab="hero">Hero</button>
+        <button class="tab" data-tab="gifts">Gift Cards</button>
         <button class="tab" data-tab="footer">Footer</button>
         <button class="tab" data-tab="settings">Settings</button>
       </nav>
@@ -150,6 +151,37 @@
           <div class="card__head"><h3>Decorative strips</h3></div>
           <label class="check"><input id="strip-wine" type="checkbox"> Wine strip (between hero and merch)</label>
           <label class="check"><input id="strip-peach" type="checkbox"> Peach gradient strips</label>
+        </div>
+      </section>
+
+      <section class="page" data-page="gifts">
+        <h2>Gift Cards</h2>
+        <p class="page__hint">
+          Issue gift cards shoppers can redeem at checkout as their payment method.
+          Codes ship with the published site data — this is a demo system, not a real
+          merchant vault.
+        </p>
+
+        <div class="card">
+          <div class="card__head"><h3>Issue a gift card</h3></div>
+          <div class="fields-2">
+            <div class="field">
+              <label for="gc-balance">Balance ($)</label>
+              <input id="gc-balance" type="text" inputmode="decimal" placeholder="e.g. 50">
+            </div>
+            <div class="field">
+              <label for="gc-label">Note / label</label>
+              <input id="gc-label" type="text" placeholder="e.g. Birthday promo">
+            </div>
+          </div>
+          <div class="admin__bar-actions">
+            <button class="btn btn--primary" id="gc-add" type="button">+ Issue gift card</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__head"><h3>Issued cards (<span id="gc-count">0</span>)</h3></div>
+          <div id="gift-list"></div>
         </div>
       </section>
 
