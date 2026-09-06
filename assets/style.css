@@ -1011,6 +1011,156 @@ button {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
 }
 
+/* ---------- Gift cards section ---------- */
+.giftcards {
+  background:
+    linear-gradient(135deg, rgba(117, 68, 70, 0.05), rgba(220, 188, 177, 0.28)),
+    var(--color-peach);
+  padding: 60px 20px 64px;
+  text-align: center;
+}
+
+.giftcards__inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.giftcards__eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-wine);
+}
+
+.giftcards__title {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-wine);
+}
+
+.giftcards__sub {
+  margin: 0 auto 26px;
+  max-width: 460px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgba(53, 31, 33, 0.75);
+}
+
+.giftcards__denoms {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.giftcards__chip {
+  border: 1.5px solid var(--color-wine);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--color-wine);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 12px 26px;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, transform 0.15s;
+}
+
+.giftcards__chip:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.giftcards__chip.selected {
+  background: var(--color-wine);
+  color: var(--color-white);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(117, 68, 70, 0.35);
+}
+
+.giftcards__custom {
+  margin: 18px 0 0;
+}
+
+.giftcards__custom input {
+  padding: 12px 18px;
+  border: 1.5px solid var(--color-wine);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  width: 220px;
+  color: var(--color-wine);
+  text-align: center;
+}
+
+.giftcards__custom input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(117, 68, 70, 0.2);
+}
+
+.giftcards__add {
+  max-width: 340px;
+  margin: 22px auto 0;
+  display: block;
+}
+
+.giftcards__msg {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  min-height: 1.2em;
+}
+
+.giftcards__msg.elegible {
+  color: #1d7a3e;
+}
+
+.giftcards__msg.err {
+  color: #b3261e;
+}
+
+.giftcards__check {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 30px;
+}
+
+.giftcards__check input {
+  flex: 0 1 300px;
+  min-width: 0;
+  padding: 11px 16px;
+  border: 1px solid rgba(117, 68, 70, 0.5);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  font-family: ui-monospace, Menlo, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.88rem;
+}
+
+.giftcards__check input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(117, 68, 70, 0.2);
+}
+
+@media (max-width: 520px) {
+  .giftcards__check {
+    flex-direction: column;
+    align-items: center;
+  }
+.giftcards__check input {
+    flex-basis: auto;
+    width: 100%;
+  }
+}
+
 /* ---------- Album ---------- */
 .album {
   display: flex;
