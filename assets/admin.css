@@ -113,6 +113,18 @@ body{
 }
 .pre-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.75}
 .pre-tile span{position:relative;z-index:1;padding:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:12px}
+.pre-tile .pre-price{
+  position:absolute;top:8px;right:8px;z-index:1;font-style:normal;
+  background:#754446;color:#fff;border-radius:999px;padding:3px 9px;
+  font-weight:700;font-size:12px
+}
+
+/* Gift card rows */
+.gc-code{
+  font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:15px;
+  background:#241214;color:#f2e7df;border-radius:8px;padding:8px 12px;
+  letter-spacing:.08em;white-space:nowrap;flex-shrink:0
+}
 
 /* Album preview */
 .album-pre{display:flex;align-items:center;gap:18px;margin-top:8px}
