@@ -14,10 +14,10 @@ var DEFAULT = {
   strips: { wine: true, peach: true },
   merch: {
     tiles: [
-      { title: "Tees", image: "images/tees.webp", link: "https://calumscott.com/collections/tee" },
-      { title: "Hoods & Sweats", image: "images/hoods.webp", link: "https://calumscott.com/collections/hoods-sweats" },
-      { title: "Hats", image: "images/hats.webp", link: "https://calumscott.com/collections/headwear" },
-      { title: "Shop All", image: "images/shopall.webp", link: "https://calumscott.com/collections/merch" }
+      { title: "Tees", image: "images/tees.webp", link: "https://calumscott.com/collections/tee", price: 26 },
+      { title: "Hoods & Sweats", image: "images/hoods.webp", link: "https://calumscott.com/collections/hoods-sweats", price: 55 },
+      { title: "Hats", image: "images/hats.webp", link: "https://calumscott.com/collections/headwear", price: 24 },
+      { title: "Shop All", image: "images/shopall.webp", link: "https://calumscott.com/collections/merch", price: 0 }
     ]
   },
   album: {
@@ -44,7 +44,8 @@ var DEFAULT = {
       { label: "TikTok", href: "https://www.tiktok.com/" },
       { label: "Facebook", href: "https://www.facebook.com/" }
     ]
-  }
+  },
+  giftCards: []
 };
 
 var STORAGE_KEY = "calum_admin_v1";
@@ -181,6 +182,7 @@ function normalizeState(saved) {
   }
   d.footer = Object.assign({}, d.footer, saved.footer || {});
   if (!Array.isArray(d.footer.socials)) d.footer.socials = [];
+  d.giftCards = Array.isArray(saved.giftCards) ? saved.giftCards : [];
   return d;
 }
 
@@ -257,7 +259,8 @@ function renderMerchList() {
       '<img class="lr-img" src="' + esc(tile.image) + '" alt="">' +
       '<div class="lr-body">' +
       '<input data-f="title" value="' + esc(tile.title) + '" placeholder="Title">' +
-      '<input data-f="image" value="' + esc(tile.image) + '" placeholder="Image URL / path">' +
+      '<input data-f="price" type="number" min="0" step="0.01" value="' + esc(tile.price || "") + '" placeholder="Price $">' +
+      '<input data-f="image" style="grid-column:1/-1" value="' + esc(tile.image) + '" placeholder="Image URL / path">' +
       '<input data-f="link" style="grid-column:1/-1" value="' + esc(tile.link) + '" placeholder="Link URL">' +
       "</div>" +
       '<div class="lr-actions">' +
@@ -272,6 +275,11 @@ function renderMerchList() {
     imgInput.addEventListener("input", function () { img.src = imgInput.value; tile.image = imgInput.value; renderMerchPreview(); });
     row.querySelector('[data-f="title"]').addEventListener("input", function () { tile.title = this.value; renderMerchPreview(); });
     row.querySelector('[data-f="link"]').addEventListener("input", function () { tile.link = this.value; });
+    row.querySelector('[data-f="price"]').addEventListener("input", function () {
+      var n = parseFloat(this.value);
+      tile.price = isNaN(n) || n < 0 ? 0 : n;
+      renderMerchPreview();
+    });
 
     row.querySelector('[data-act="up"]').addEventListener("click", function () {
       if (i > 0) {
@@ -303,9 +311,17 @@ function renderMerchPreview() {
   state.merch.tiles.forEach(function (tile) {
     var t = document.createElement("div");
     t.className = "pre-tile";
-    t.innerHTML = '<img src="' + esc(tile.image) + '" alt="">' + "<span>" + esc(tile.title || "Tile") + "</span>";
+    t.innerHTML =
+      '<img src="' + esc(tile.image) + '" alt="">' +
+      "<span>" + esc(tile.title || "Tile") + "</span>" +
+      (tile.price > 0 ? '<em class="pre-price">$' + money(tile.price) + "</em>" : "");
     host.appendChild(t);
   });
+}
+
+function money(n) {
+  n = Number(n) || 0;
+  return n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
 function esc(s) {
@@ -341,6 +357,67 @@ function renderSocialList() {
     });
     row.querySelector('[data-act="del"]').addEventListener("click", function () { state.footer.socials.splice(i, 1); renderSocialList(); });
   });
+}
+
+/* ---------------- gift cards ---------------- */
+var CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+function makeGiftCode(len) {
+  var out = "";
+  for (var i = 0; i < (len || 8); i++) {
+    out += CODE_CHARS.charAt(Math.floor(Math.random() * CODE_CHARS.length));
+  }
+  return out;
+}
+
+function renderGiftCards() {
+  var host = $("#gift-list");
+  host.innerHTML = "";
+  $("#gc-count").textContent = state.giftCards.length;
+  if (!state.giftCards.length) {
+    host.innerHTML = '<p class="page__hint">No gift cards yet — issue one above.</p>';
+    return;
+  }
+  state.giftCards.forEach(function (card, i) {
+    var row = document.createElement("div");
+    row.className = "list-row";
+    row.innerHTML =
+      '<div class="gc-code">' + esc(card.code) + "</div>" +
+      '<div class="lr-body" style="grid-template-columns:1fr 1.4fr">' +
+      '<input data-f="balance" type="number" min="0" step="0.01" value="' + esc(card.balance) + '" title="Balance">' +
+      '<input data-f="label" value="' + esc(card.label || "") + '" placeholder="Note">' +
+      "</div>" +
+      '<div class="lr-actions">' +
+      '<button data-act="topup" class="del" title="Delete this card">×</button>' +
+      "</div>";
+    host.appendChild(row);
+    row.querySelector('[data-f="balance"]').addEventListener("input", function () {
+      var n = parseFloat(this.value);
+      card.balance = isNaN(n) || n < 0 ? 0 : n;
+    });
+    row.querySelector('[data-f="label"]').addEventListener("input", function () { card.label = this.value; });
+    row.querySelector('[data-act="topup"]').addEventListener("click", function () {
+      if (confirm("Delete gift card " + card.code + "?")) {
+        state.giftCards.splice(i, 1);
+        renderGiftCards();
+      }
+    });
+  });
+}
+
+function issueGiftCard() {
+  var bal = parseFloat($("#gc-balance").value);
+  if (isNaN(bal) || bal <= 0) {
+    toast("Enter a balance greater than 0", "err");
+    return;
+  }
+  var label = $("#gc-label").value.trim();
+  var code = makeGiftCode(10);
+  state.giftCards.push({ code: code, balance: bal, label: label });
+  $("#gc-balance").value = "";
+  $("#gc-label").value = "";
+  renderGiftCards();
+  toast("Gift card " + code + " issued", "ok");
 }
 
 /* ---------------- gallery photo editor ---------------- */
@@ -517,6 +594,7 @@ function rerenderAll() {
   renderMerchList();
   renderSocialList();
   renderGallery();
+  renderGiftCards();
 }
 
 /* ---------------- init ---------------- */
@@ -557,6 +635,10 @@ function init() {
   $("#btn-clear-local").addEventListener("click", clearLocal);
   $("#btn-save-pub").addEventListener("click", savePub);
   $("#btn-publish").addEventListener("click", publishSiteJson);
+  $("#gc-add").addEventListener("click", issueGiftCard);
+  $("#gc-balance").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") $("#gc-add").click();
+  });
 
   loadPub();
   refreshPublishStatus();
