@@ -490,6 +490,29 @@
       }
     }
 
+    /* Gift card section */
+    if (d.giftCardSection) {
+      gcsCfg = {
+        enabled: d.giftCardSection.enabled !== false,
+        eyebrow: d.giftCardSection.eyebrow || '',
+        title: d.giftCardSection.title || 'Gift Cards',
+        sub: d.giftCardSection.sub || '',
+        denominations: (d.giftCardSection.denominations || []).slice(),
+        custom: d.giftCardSection.custom !== false
+      };
+      var gcsSec = document.getElementById('giftcard-section');
+      if (gcsSec) gcsSec.style.display = gcsCfg.enabled ? '' : 'none';
+      var setText = function (id, txt) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = txt;
+      };
+      setText('gcs-eyebrow', gcsCfg.eyebrow);
+      setText('gcs-title', gcsCfg.title);
+      setText('gcs-sub', gcsCfg.sub);
+      var wrap = document.getElementById('giftcards-custom-wrap');
+      if (wrap) wrap.hidden = !gcsCfg.custom || !gcsCfg.denominations.length;
+    }
+
     /* Footer */
     if (d.footer) {
       var socials = document.querySelector('.footer__social');
@@ -660,6 +683,7 @@
   var siteCards = [];
   var gcUsed = [];
   var applied = { code: '', balance: 0, amount: 0, from: '' };
+  var gcsCfg = { enabled: true, denominations: [25, 50, 100], custom: true };
 
   function saveGcUsed() {
     try { localStorage.setItem(GC_USED_KEY, JSON.stringify(gcUsed)); } catch (e) {}
@@ -824,6 +848,122 @@
         addToCartItem(tile.dataset.title || 'Item', price, img ? img.src : '');
       });
       tile.appendChild(btn);
+    });
+
+    /* Gift card section */
+    var gcsDenoms = document.getElementById('giftcards-denoms');
+    var gcsSelected = null;
+    var gcsMsg = document.getElementById('giftcards-msg');
+
+    function gcsSetMsg(txt, cls) {
+      if (!gcsMsg) return;
+      gcsMsg.textContent = txt || '';
+      gcsMsg.className = 'giftcards__msg ' + (cls || '');
+      if (!txt) gcsMsg.className = 'giftcards__msg';
+    }
+
+    function gcsRenderDenoms() {
+      if (!gcsDenoms) return;
+      gcsDenoms.innerHTML = '';
+      var list = gcsCfg.denominations.filter(function (n) { return n > 0; });
+      if (!list.length && !gcsCfg.custom) return;
+      list.forEach(function (n) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'giftcards__chip';
+        chip.textContent = '$' + n.toLocaleString('en-US');
+        chip.addEventListener('click', function () {
+          chip.classList.add('selected');
+          Array.prototype.forEach.call(chip.parentNode.children, function (o) {
+            if (o !== chip) o.classList.remove('selected');
+          });
+          gcsSelected = n;
+          var c = document.getElementById('giftcards-custom');
+          if (c) c.value = '';
+          gcsSetMsg('');
+        });
+        gcsDenoms.appendChild(chip);
+      });
+      // preselect first denomination
+      if (list.length) {
+        gcsSelected = list[0];
+        gcsDenoms.children[0].classList.add('selected');
+      }
+    }
+
+    function gcsCurrentAmount() {
+      var c = document.getElementById('giftcards-custom');
+      if (c && c.value) {
+        var n = parseFloat(c.value);
+        return isNaN(n) || n <= 0 ? null : n;
+      }
+      return gcsSelected;
+    }
+
+    gcsRenderDenoms();
+    var gcsCustomInput = document.getElementById('giftcards-custom');
+    if (gcsCustomInput) {
+      gcsCustomInput.addEventListener('input', function () {
+        if (gcsCfg.denominations.length) {
+          Array.prototype.forEach.call(gcsDenoms.children, function (o) {
+            o.classList.remove('selected');
+          });
+        }
+        gcsSelected = null;
+        gcsSetMsg('');
+      });
+      gcsCustomInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') document.getElementById('giftcards-add').click();
+      });
+    }
+
+    var gcsAdd = document.getElementById('giftcards-add');
+    if (gcsAdd) gcsAdd.addEventListener('click', function () {
+      var amt = gcsCurrentAmount();
+      if (!amt) {
+        gcsSetMsg(gcsCfg.custom ? 'Pick an amount or enter a custom value.' : 'Pick an amount.', 'err');
+        return;
+      }
+      addToCartItem('Gift Card ($' + amt.toLocaleString('en-US') + ')', amt, 'images/cs-logo.png');
+      gcsSetMsg('Gift card added to your cart.');
+    });
+
+    /* Gift card balance check */
+    var balInput = document.getElementById('giftcards-balance-input');
+    var balBtn = document.getElementById('giftcards-balance-btn');
+    var balResult = document.getElementById('giftcards-balance-result');
+
+    function checkGcBalance() {
+      if (!balResult) return;
+      var code = (balInput.value || '').trim().toUpperCase();
+      if (!code) {
+        balResult.className = 'giftcards__msg err';
+        balResult.textContent = 'Enter a gift card code.';
+        return;
+      }
+      var card = null;
+      for (var i = 0; i < siteCards.length; i++) {
+        if (String(siteCards[i].code).toUpperCase() === code) { card = siteCards[i]; break; }
+      }
+      if (!card) {
+        balResult.className = 'giftcards__msg err';
+        balResult.textContent = 'Unknown code "' + shopEsc(code) + '". Codes are issued by the store admin.';
+        return;
+      }
+      if ((Number(card.balance) || 0) <= 0) {
+        balResult.className = 'giftcards__msg err';
+        balResult.textContent = 'Card "' + shopEsc(code) + '" has no balance left.';
+        return;
+      }
+      var usedHere = gcUsed.indexOf(code) !== -1;
+      balResult.className = 'giftcards__msg elegible';
+      balResult.textContent = 'Card "' + shopEsc(code) + '" has ' + shopMoney(Number(card.balance)) + ' available' +
+        (usedHere ? ' (already redeemed in this browser)' : '') + '.';
+    }
+
+    if (balBtn) balBtn.addEventListener('click', checkGcBalance);
+    if (balInput) balInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') checkGcBalance();
     });
 
     renderCartBadge();
