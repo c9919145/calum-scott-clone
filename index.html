@@ -54,9 +54,10 @@
             <svg viewBox="0 0 25 25" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7.5" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m16.8 16.8 5.2 5.2"/></svg>
           </button>
 
-          <a class="header__icon" href="https://calumscott.com/cart" aria-label="Cart">
+          <button class="header__icon" id="cart-toggle" type="button" aria-label="Cart">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path fill="currentColor" d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0 0 20 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-          </a>
+            <span class="cart-count" id="cart-count" hidden>0</span>
+          </button>
         </div>
       </div>
     </div>
@@ -76,6 +77,25 @@
       <a href="https://calumscott.lnk.to/textme">SIGN UP</a>
       <a href="#scotties">SCOTTIES GALLERY</a>
     </nav>
+  </aside>
+
+  <div class="cart-overlay" id="shop-overlay" aria-hidden="true"></div>
+  <aside class="cart-drawer" id="cart-drawer" role="dialog" aria-label="Cart">
+    <div class="cart__head">
+      <h2 class="cart__title">Cart</h2>
+      <button class="menu-drawer__close" id="cart-close" type="button" aria-label="Close cart">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18" aria-hidden="true"><path fill="currentColor" d="M.865 15.978a.5.5 0 0 0 .707.707l7.433-7.431 7.579 7.282a.501.501 0 0 0 .846-.37.5.5 0 0 0-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 1 0-.707-.708L8.991 7.853 1.413.573a.5.5 0 1 0-.693.72l7.563 7.268z"/></svg>
+      </button>
+    </div>
+    <div class="cart__items" id="cart-items"></div>
+    <div class="cart__foot">
+      <div class="cart__subtotal">
+        <span>Subtotal</span>
+        <span id="cart-subtotal">$0.00</span>
+      </div>
+      <button class="btn--checkout" id="cart-checkout" type="button">Checkout</button>
+      <p class="cart__note">Gift cards accepted at checkout.</p>
+    </div>
   </aside>
 
   <div class="overlay oc-hide" id="search-overlay" role="dialog" aria-modal="true" aria-label="Search">
@@ -107,6 +127,18 @@
     </div>
   </div>
 
+  <div class="overlay oc-hide" id="checkout-overlay" role="dialog" aria-modal="true" aria-label="Checkout">
+    <div class="overlay__panel checkout-panel" id="checkout-panel">
+      <div class="lang__head">
+        <h2 class="lang__title">Checkout</h2>
+        <button class="search__close" id="checkout-close" type="button" aria-label="Close dialog">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18" aria-hidden="true"><path fill="currentColor" d="M.865 15.978a.5.5 0 0 0 .707.707l7.433-7.431 7.579 7.282a.501.501 0 0 0 .846-.37.5.5 0 0 0-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 1 0-.707-.708L8.991 7.853 1.413.573a.5.5 0 1 0-.693.72l7.563 7.268z"/></svg>
+        </button>
+      </div>
+      <div id="checkout-view"></div>
+    </div>
+  </div>
+
   <main id="MainContent" role="main" tabindex="-1">
 
     <section class="hero">
@@ -123,22 +155,30 @@
         <img src="images/paper-background.webp" alt="" loading="lazy">
       </div>
       <div class="merch__grid">
-        <a class="merch__tile" href="https://calumscott.com/collections/tee">
-          <div class="merch__media"><img src="images/tees.webp" alt="Calum Scott tees" loading="lazy"></div>
-          <span class="merch__label">Tees</span>
-        </a>
-        <a class="merch__tile" href="https://calumscott.com/collections/hoods-sweats">
-          <div class="merch__media"><img src="images/hoods.webp" alt="Calum Scott hoods and sweats" loading="lazy"></div>
-          <span class="merch__label">Hoods</span>
-        </a>
-        <a class="merch__tile" href="https://calumscott.com/collections/headwear">
-          <div class="merch__media"><img src="images/hats.webp" alt="Calum Scott hats" loading="lazy"></div>
-          <span class="merch__label">Hats</span>
-        </a>
-        <a class="merch__tile" href="https://calumscott.com/collections/merch">
-          <div class="merch__media"><img src="images/shopall.webp" alt="Calum Scott merchandise" loading="lazy"></div>
-          <span class="merch__label">Shop All</span>
-        </a>
+        <div class="merch__tile" data-price="26" data-title="Tees">
+          <a class="merch__tile-link" href="https://calumscott.com/collections/tee">
+            <div class="merch__media"><img src="images/tees.webp" alt="Calum Scott tees" loading="lazy"></div>
+            <span class="merch__label">Tees</span>
+          </a>
+        </div>
+        <div class="merch__tile" data-price="55" data-title="Hoods">
+          <a class="merch__tile-link" href="https://calumscott.com/collections/hoods-sweats">
+            <div class="merch__media"><img src="images/hoods.webp" alt="Calum Scott hoods and sweats" loading="lazy"></div>
+            <span class="merch__label">Hoods</span>
+          </a>
+        </div>
+        <div class="merch__tile" data-price="24" data-title="Hats">
+          <a class="merch__tile-link" href="https://calumscott.com/collections/headwear">
+            <div class="merch__media"><img src="images/hats.webp" alt="Calum Scott hats" loading="lazy"></div>
+            <span class="merch__label">Hats</span>
+          </a>
+        </div>
+        <div class="merch__tile" data-price="0" data-title="Shop All">
+          <a class="merch__tile-link" href="https://calumscott.com/collections/merch">
+            <div class="merch__media"><img src="images/shopall.webp" alt="Calum Scott merchandise" loading="lazy"></div>
+            <span class="merch__label">Shop All</span>
+          </a>
+        </div>
       </div>
     </section>
 
