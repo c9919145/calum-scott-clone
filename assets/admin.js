@@ -45,7 +45,9 @@ var DEFAULT = {
       { label: "Facebook", href: "https://www.facebook.com/" }
     ]
   },
-  giftCards: []
+  giftCards: [
+    { code: "WELCOME10", balance: 10, label: "Demo card" }
+  ]
 };
 
 var STORAGE_KEY = "calum_admin_v1";
@@ -54,11 +56,25 @@ var PUBLISH_PATH = "data/site.json";
 
 var pub = { token: "", owner: "", repo: "" };
 
+function guessSiteRepo() {
+  var host = location.hostname;
+  var owner = host.split(".")[0];
+  var seg = location.pathname.split("/").filter(Boolean);
+  var repo = seg.length ? seg[0] : owner + ".github.io";
+  return { owner: owner, repo: repo };
+}
+
 function loadPub() {
   try {
     var raw = localStorage.getItem(PUBLISH_KEY);
     if (raw) pub = Object.assign(pub, JSON.parse(raw));
   } catch (e) {}
+  // Auto-target the repo that is actually serving this admin panel.
+  var g = guessSiteRepo();
+  if (g.owner && g.repo) {
+    pub.owner = g.owner;
+    pub.repo = g.repo;
+  }
   $("#pub-token").value = pub.token;
   $("#pub-owner").value = pub.owner;
   $("#pub-repo").value = pub.repo;
@@ -388,9 +404,13 @@ function renderGiftCards() {
       '<input data-f="label" value="' + esc(card.label || "") + '" placeholder="Note">' +
       "</div>" +
       '<div class="lr-actions">' +
+      '<button data-act="copy" title="Copy code">Copy</button>' +
       '<button data-act="topup" class="del" title="Delete this card">×</button>' +
       "</div>";
     host.appendChild(row);
+    row.querySelector('[data-act="copy"]').addEventListener("click", function () {
+      copyText(card.code);
+    });
     row.querySelector('[data-f="balance"]').addEventListener("input", function () {
       var n = parseFloat(this.value);
       card.balance = isNaN(n) || n < 0 ? 0 : n;
@@ -403,6 +423,25 @@ function renderGiftCards() {
       }
     });
   });
+}
+
+function copyText(text) {
+  function copied() {
+    toast("Copied " + text, "ok");
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(copied).catch(fallback);
+  } else fallback();
+  function fallback() {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); copied(); } catch (e) { toast("Copy failed — select manually", "err"); }
+    document.body.removeChild(ta);
+  }
 }
 
 function issueGiftCard() {
